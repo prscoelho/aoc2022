@@ -4,6 +4,7 @@ use crate::runner::{parse_day, read_day_input, Solve};
 mod runner;
 
 mod day01;
+mod day02;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -24,6 +25,7 @@ fn main() {
 
     let (p1, p2) = match day {
         1 => day01::Day01::solve(&input),
+        2 => day02::Day02::solve(&input),
         _ => {
             eprintln!("Not implemented yet");
             return;

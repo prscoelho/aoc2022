@@ -52,7 +52,8 @@ pub fn parse_day(day_str: &str) -> Result<i32, DayError> {
 
 pub fn read_day_input(day: i32) -> String {
     let filename = format!("./input/{:02}.input", day);
-    let mut file = File::open(&filename).unwrap();
+    let mut file = File::open(&filename)
+        .unwrap_or_else(|_| panic!("failed to open \"{}\", does it exist?", filename));
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
     contents
