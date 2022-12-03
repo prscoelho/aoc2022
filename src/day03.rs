@@ -16,28 +16,29 @@ fn priority(c: char) -> u32 {
     }
 }
 
-fn find_repeating_compartment(rucksack: &[char]) -> char {
-    let first_compartment: HashSet<char> =
-        rucksack.iter().take(rucksack.len() / 2).cloned().collect();
+fn find_repeating_compartment(mut rucksack: Vec<char>) -> char {
+    let first_compartment: HashSet<char> = rucksack.drain(0..rucksack.len() / 2).collect();
 
-    *rucksack
-        .iter()
-        .skip(rucksack.len() / 2)
-        .find(|ch| first_compartment.contains(&ch))
+    rucksack
+        .into_iter()
+        .find(|ch| first_compartment.contains(ch))
         .unwrap()
 }
 
-fn occurrence(rucksack: &[char]) -> HashSet<char> {
-    rucksack.iter().cloned().collect()
+fn occurrence<'a, T>(rucksack: T) -> HashSet<char>
+where
+    T: IntoIterator<Item = &'a char>,
+{
+    rucksack.into_iter().cloned().collect()
 }
 
 fn find_repeating_elves(rucksacks: &[Vec<char>]) -> char {
-    *rucksacks
+    rucksacks
         .iter()
-        .map(|sack| occurrence(sack))
-        .reduce(|acum, item| acum.intersection(&item).cloned().collect::<HashSet<char>>())
+        .map(occurrence)
+        .reduce(|accum, item| &accum & &item)
         .unwrap()
-        .iter()
+        .into_iter()
         .next()
         .unwrap()
 }
@@ -47,9 +48,9 @@ impl Solve<u32, u32> for Day03 {
         let rucksacks = parse_input(input);
 
         rucksacks
-            .iter()
-            .map(|sack| find_repeating_compartment(sack))
-            .map(|repeating| priority(repeating))
+            .into_iter()
+            .map(find_repeating_compartment)
+            .map(priority)
             .sum()
     }
     fn part2(input: &str) -> u32 {
@@ -57,8 +58,8 @@ impl Solve<u32, u32> for Day03 {
 
         rucksacks
             .chunks(3)
-            .map(|chunk| find_repeating_elves(chunk))
-            .map(|repeating| priority(repeating))
+            .map(find_repeating_elves)
+            .map(priority)
             .sum()
     }
 }
