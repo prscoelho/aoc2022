@@ -1,6 +1,6 @@
 use crate::runner::Solve;
 
-pub struct Day00 {}
+pub struct Day00;
 
 impl Solve<i32, i32> for Day00 {
     fn part1(input: &str) -> i32 {

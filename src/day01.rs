@@ -13,7 +13,7 @@ fn read_input(input: &str) -> Vec<Vec<i32>> {
     elves
 }
 
-pub struct Day01 {}
+pub struct Day01;
 
 impl Solve<i32, i32> for Day01 {
     fn part1(input: &str) -> i32 {

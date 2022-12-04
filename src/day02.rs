@@ -15,7 +15,7 @@ fn read_input(input: &str) -> Vec<(&str, &str)> {
 enum Shape {
     Rock,
     Paper,
-    Scissors
+    Scissors,
 }
 
 fn decode_left(s: &str) -> Shape {
@@ -36,35 +36,29 @@ fn decode_right(s: &str) -> Shape {
     }
 }
 
-#[derive(Clone, Copy, Debug,PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Outcome {
     Loss,
     Win,
-    Draw
+    Draw,
 }
 
 fn round_outcome(left: Shape, right: Shape) -> Outcome {
     match left {
-        Shape::Rock => {
-            match right {
-                Shape::Rock => Outcome::Draw,
-                Shape::Paper => Outcome::Win,
-                Shape::Scissors => Outcome::Loss,
-            }
+        Shape::Rock => match right {
+            Shape::Rock => Outcome::Draw,
+            Shape::Paper => Outcome::Win,
+            Shape::Scissors => Outcome::Loss,
         },
-        Shape::Paper => {
-            match right {
-                Shape::Rock => Outcome::Loss,
-                Shape::Paper => Outcome::Draw,
-                Shape::Scissors => Outcome::Win,
-            }
+        Shape::Paper => match right {
+            Shape::Rock => Outcome::Loss,
+            Shape::Paper => Outcome::Draw,
+            Shape::Scissors => Outcome::Win,
         },
-        Shape::Scissors => {
-            match right {
-                Shape::Rock => Outcome::Win,
-                Shape::Paper => Outcome::Loss,
-                Shape::Scissors => Outcome::Draw,
-            }
+        Shape::Scissors => match right {
+            Shape::Rock => Outcome::Win,
+            Shape::Paper => Outcome::Loss,
+            Shape::Scissors => Outcome::Draw,
         },
     }
 }
@@ -111,7 +105,7 @@ impl Solve<u32, u32> for Day02 {
             let right_shape = decode_right(right);
 
             let outcome = round_outcome(left_shape, right_shape);
-            
+
             result += score(right_shape, outcome);
         }
 
