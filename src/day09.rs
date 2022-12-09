@@ -111,7 +111,7 @@ fn walk_rope(motions: Vec<Motion>, n: usize) -> HashSet<(i32, i32)> {
                 }
             }
 
-            result.insert(knots.last().unwrap().clone());
+            result.insert(*knots.last().unwrap());
         }
     }
 
