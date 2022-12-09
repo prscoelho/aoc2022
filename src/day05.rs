@@ -60,7 +60,7 @@ fn parse_input(input: &str) -> (Vec<Vec<char>>, Vec<Action>) {
     (board, actions)
 }
 
-fn apply_action9000(board: &mut Vec<Vec<char>>, action: Action) {
+fn apply_action9000(board: &mut [Vec<char>], action: Action) {
     // action indices are 1-indexed, while ours are 0-indexed
     let from = action.from - 1;
     let to = action.to - 1;
@@ -71,7 +71,7 @@ fn apply_action9000(board: &mut Vec<Vec<char>>, action: Action) {
     }
 }
 
-fn apply_action9001(board: &mut Vec<Vec<char>>, action: Action) {
+fn apply_action9001(board: &mut [Vec<char>], action: Action) {
     // action indices are 1-indexed, while ours are 0-indexed
     let from = action.from - 1;
     let to = action.to - 1;
