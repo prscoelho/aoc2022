@@ -68,11 +68,10 @@ fn draw(crt: [bool; 240]) -> String {
 
 fn value_at_cycle(history: &[(i32, usize)], cycle: usize) -> (i32, usize) {
     let range = cycle - 1..=cycle;
-    history
+    *history
         .iter()
         .find(|(_, current_cycle)| range.contains(current_cycle))
         .unwrap()
-        .clone()
 }
 
 impl Solve<i32, String> for Day10 {
@@ -267,7 +266,6 @@ noop"#;
     fn example_p1() {
         let result = Day10::part1(EXAMPLE);
         let expected = 13140;
-
 
         assert_eq!(result, expected);
     }

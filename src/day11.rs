@@ -107,7 +107,7 @@ fn monkey_business(mut inspections: Vec<usize>) -> usize {
 
 impl Solve<usize, usize> for Day11 {
     fn part1(input: &str) -> usize {
-        let mut monkeys: Vec<Monkey> = input.split("\n\n").map(|s| parse_monkey(s)).collect();
+        let mut monkeys: Vec<Monkey> = input.split("\n\n").map(parse_monkey).collect();
         let mut inspections = vec![0; monkeys.len()];
 
         for _ in 0..20 {
@@ -117,7 +117,7 @@ impl Solve<usize, usize> for Day11 {
         monkey_business(inspections)
     }
     fn part2(input: &str) -> usize {
-        let mut monkeys: Vec<Monkey> = input.split("\n\n").map(|s| parse_monkey(s)).collect();
+        let mut monkeys: Vec<Monkey> = input.split("\n\n").map(parse_monkey).collect();
         let mut inspections = vec![0; monkeys.len()];
 
         for _ in 0..10_000 {
