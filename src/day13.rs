@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, iter::zip};
+use std::cmp::Ordering;
 
 use crate::runner::Solve;
 
@@ -39,7 +39,8 @@ fn parse_input(input: &str) -> Vec<Value> {
     input
         .split("\n\n")
         .flat_map(str::lines)
-        .map(|s| parse_value(s).1)
+        .map(parse_value)
+        .map(|tuple| tuple.1)
         .collect()
 }
 
@@ -47,30 +48,9 @@ impl Ord for Value {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self, other) {
             (Value::Integer(v1), Value::Integer(v2)) => v1.cmp(v2),
-            (Value::List(l1), Value::List(l2)) => {
-                for (left, right) in zip(l1, l2) {
-                    let cmp = left.cmp(right);
-                    match cmp {
-                        Ordering::Less | Ordering::Greater => {
-                            return cmp;
-                        }
-                        Ordering::Equal => continue,
-                    }
-                }
-                // finished parsing the entire list, now compare lengths
-                l1.len().cmp(&l2.len())
-            }
-            (value1 @ Value::List(_), value2) => {
-                // this is cheap, as cloned value is guaranteed to be an Integer
-                // still feels ugly to do allocations in cmp..
-                let value2 = Value::List(vec![value2.clone()]);
-                value1.cmp(&value2)
-            }
-            (value1, value2) => {
-                // same as above
-                let value1 = Value::List(vec![value1.clone()]);
-                value1.cmp(value2)
-            }
+            (Value::List(l1), Value::List(l2)) => l1.cmp(l2),
+            (Value::List(l1), value2) => l1.cmp(&vec![value2.clone()]),
+            (value1, Value::List(l2)) => vec![value1.clone()].cmp(l2),
         }
     }
 }
@@ -103,16 +83,11 @@ impl Solve<usize, usize> for Day13 {
 
         values.sort();
 
-        let idx1 = values
-            .iter()
-            .position(|value| value == &dividers[0])
-            .unwrap();
-        let idx2 = values
-            .iter()
-            .position(|value| value == &dividers[1])
-            .unwrap();
-
-        (idx1 + 1) * (idx2 + 1)
+        dividers
+            .into_iter()
+            .filter_map(|divider| values.binary_search(&divider).ok())
+            .map(|idx| idx + 1)
+            .product()
     }
 }
 
