@@ -80,15 +80,40 @@ fn snapshot_line(set: &BTreeSet<Coordinate>, y: i32) -> u8 {
     result
 }
 
-fn snapshot(set: &BTreeSet<Coordinate>, y: i32) -> Option<[u8; 4]> {
-    let result = [
+fn can_passthrough(set: &BTreeSet<Coordinate>, y: i32) -> bool {
+    let start = (y + 1, 0);
+    let mut seen = BTreeSet::new();
+
+    let mut queue = vec![start];
+
+    while let Some(current) = queue.pop() {
+        if current.0 < y - 3 {
+            return true;
+        }
+        for dir in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
+            let neighbour = add(current, dir);
+            if neighbour.0 <= y + 1
+                && within_bounds(neighbour)
+                && !set.contains(&neighbour)
+                && seen.insert(neighbour)
+            {
+                queue.push(neighbour);
+            }
+        }
+    }
+    false
+}
+
+fn try_snapshot(set: &BTreeSet<Coordinate>, y: i32) -> Option<Vec<u8>> {
+    let result = vec![
         snapshot_line(set, y - 3),
         snapshot_line(set, y - 2),
         snapshot_line(set, y - 1),
         snapshot_line(set, y),
     ];
 
-    if result.iter().any(|u| *u == 0x7F) {
+    // snapshot is not useful unless it blocks off all pieces
+    if !can_passthrough(set, y) {
         Some(result)
     } else {
         None
@@ -100,7 +125,7 @@ fn height_after(rock_amount: usize, jets: Vec<Jet>) -> usize {
 
     let mut jets = jets.into_iter().enumerate().cycle().peekable();
 
-    let mut snapshots: HashMap<([u8; 4], usize, usize), (i32, usize)> = HashMap::new();
+    let mut snapshots = HashMap::new();
     let mut history = Vec::new();
 
     for (current_rock, (rock_idx, rock)) in ORDER
@@ -113,12 +138,10 @@ fn height_after(rock_amount: usize, jets: Vec<Jet>) -> usize {
         let current_height = set.last().map(|c| c.0).unwrap_or(-1);
         history.push(current_height);
 
-        if let Some(snap) = snapshot(&set, current_height) {
+        if let Some(snap) = try_snapshot(&set, current_height) {
             let jet_idx = jets.peek().unwrap().0;
             let key = (snap, rock_idx, jet_idx);
-            if snapshots.contains_key(&key) {
-                let &(cycle_start_height, cycle_start_rocks) = snapshots.get(&key).unwrap();
-
+            if let Some(&(cycle_start_height, cycle_start_rocks)) = snapshots.get(&key) {
                 let cycle_height = (current_height - cycle_start_height) as usize;
                 let cycle_rocks = current_rock - cycle_start_rocks;
 
