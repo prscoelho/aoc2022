@@ -39,14 +39,14 @@ fn parse_blueprint(input: &str) -> Blueprint {
     let obsidian_cost = {
         let mut obsidian_costs = tokens.next().unwrap().split_ascii_whitespace();
         let ore = obsidian_costs.next().unwrap().parse().unwrap();
-        let clay = obsidian_costs.skip(2).next().unwrap().parse().unwrap();
+        let clay = obsidian_costs.nth(2).unwrap().parse().unwrap();
         ObsidianCost { ore, clay }
     };
 
     let geode_cost = {
         let mut geode_costs = tokens.next().unwrap().split_ascii_whitespace();
         let ore = geode_costs.next().unwrap().parse().unwrap();
-        let obsidian = geode_costs.skip(2).next().unwrap().parse().unwrap();
+        let obsidian = geode_costs.nth(2).unwrap().parse().unwrap();
         GeodeCost { ore, obsidian }
     };
 
@@ -157,17 +157,17 @@ impl Action {
     }
 
     fn cost(&self, bag: &Items, blueprint: &Blueprint) -> Items {
-        let mut result = bag.clone();
+        let mut result = *bag;
         match self {
-            Action::Ore => result.ore = result.ore - blueprint.ore_cost,
-            Action::Clay => result.ore = result.ore - blueprint.clay_cost,
+            Action::Ore => result.ore -= blueprint.ore_cost,
+            Action::Clay => result.ore -= blueprint.clay_cost,
             Action::Obsidian => {
-                result.ore = result.ore - blueprint.obsidian_cost.ore;
-                result.clay = result.clay - blueprint.obsidian_cost.clay;
+                result.ore -= blueprint.obsidian_cost.ore;
+                result.clay -= blueprint.obsidian_cost.clay;
             }
             Action::Geode => {
-                result.ore = result.ore - blueprint.geode_cost.ore;
-                result.obsidian = result.obsidian - blueprint.geode_cost.obsidian;
+                result.ore -= blueprint.geode_cost.ore;
+                result.obsidian -= blueprint.geode_cost.obsidian;
             }
         };
         result
@@ -246,7 +246,7 @@ fn maximize_geodes(blueprint: Blueprint, time: usize) -> usize {
     let mut start = State::default();
     start.factory.ore = 1;
 
-    seen.insert((start.bag.clone(), start.factory.clone()));
+    seen.insert((start.bag, start.factory));
     heap.push(start);
 
     while let Some(current) = heap.pop() {

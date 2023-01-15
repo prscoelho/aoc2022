@@ -7,7 +7,11 @@ pub struct Day21;
 #[derive(Clone, Debug)]
 enum Statement {
     Value(i64),
-    Operation { left: String, operation: String, right: String }
+    Operation {
+        left: String,
+        operation: String,
+        right: String,
+    },
 }
 
 fn parse_line(input: &str) -> (String, Statement) {
@@ -21,8 +25,12 @@ fn parse_line(input: &str) -> (String, Statement) {
         let left = tokens[0].to_owned();
         let operation = tokens[1].to_owned();
         let right = tokens[2].to_owned();
-        
-        Statement::Operation { left, operation, right }
+
+        Statement::Operation {
+            left,
+            operation,
+            right,
+        }
     };
 
     (lhs.to_owned(), statement)
@@ -36,8 +44,12 @@ fn value(lhs: &str, map: &mut HashMap<String, Statement>) -> i64 {
     // avoid recomputing the same value twice by removing it and inserting it with the computed
     // value worst case scenario the value is removed and inserted right after
     let value = match map.remove(lhs) {
-        Some(Statement::Value(value)) => { value },
-        Some(Statement::Operation { left, operation, right }) => {
+        Some(Statement::Value(value)) => value,
+        Some(Statement::Operation {
+            left,
+            operation,
+            right,
+        }) => {
             let left_value = value(&left, map);
             let right_value = value(&right, map);
 
@@ -46,12 +58,12 @@ fn value(lhs: &str, map: &mut HashMap<String, Statement>) -> i64 {
                 "-" => left_value - right_value,
                 "*" => left_value * right_value,
                 "/" => left_value / right_value,
-                _ => panic!("Unexpected op")
+                _ => panic!("Unexpected op"),
             };
 
             value
         }
-        _ => panic!("Unexpected couldn't find lhs in map")
+        _ => panic!("Unexpected couldn't find lhs in map"),
     };
 
     map.insert(lhs.to_owned(), Statement::Value(value));
@@ -61,7 +73,12 @@ fn value(lhs: &str, map: &mut HashMap<String, Statement>) -> i64 {
 fn compare(input_value: i64, original: &HashMap<String, Statement>) -> i64 {
     let mut map = original.clone();
     let root = map.remove("root").unwrap();
-    if let Statement::Operation { left, operation: _, right } = root {
+    if let Statement::Operation {
+        left,
+        operation: _,
+        right,
+    } = root
+    {
         map.insert(String::from("humn"), Statement::Value(input_value));
         let left_value = value(&left, &mut map);
         let right_value = value(&right, &mut map);
@@ -75,14 +92,18 @@ fn compare(input_value: i64, original: &HashMap<String, Statement>) -> i64 {
 /// Bisect a root value.
 ///
 /// Left and right must have different signs, panics otherwise.
-fn bisection_search(map: &HashMap<String, Statement>, mut left: i64, mut right: i64) -> Option<i64> {
+fn bisection_search(
+    map: &HashMap<String, Statement>,
+    mut left: i64,
+    mut right: i64,
+) -> Option<i64> {
     let left_sign = compare(left, map).signum();
     let right_sign = compare(right, map).signum();
     assert_ne!(left_sign, right_sign);
 
     while left < right {
         let right_value = compare(right, map);
-    
+
         let mid = (left + right) / 2;
         let mid_value = compare(mid, map);
         if mid_value == 0 {
@@ -103,13 +124,15 @@ fn bisect(map: &HashMap<String, Statement>) -> i64 {
     // not sure the right way to calculate the step value.
     // we need the lowest number that achieves this zero, I think. It's not specified.
     // I found more values that result in zero.
-    let intervals: Vec<_> = (0..i64::MAX).step_by(i64::MAX as usize / 10000000).collect();
+    let intervals: Vec<_> = (0..i64::MAX)
+        .step_by(i64::MAX as usize / 10000000)
+        .collect();
 
     for interval in intervals.windows(2) {
         let left = interval[0];
-        let left_value = compare(left, &map);
+        let left_value = compare(left, map);
         let right = interval[1];
-        let right_value = compare(right, &map);
+        let right_value = compare(right, map);
 
         // A zero may exist in this interval if the signs don't match
         // Because we're dealing with integer values, the zero may not exist
@@ -121,7 +144,6 @@ fn bisect(map: &HashMap<String, Statement>) -> i64 {
         }
     }
     panic!("Couldnt find the zero");
-
 }
 impl Solve<i64, i64> for Day21 {
     fn part1(input: &str) -> i64 {

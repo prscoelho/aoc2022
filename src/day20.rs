@@ -44,7 +44,7 @@ fn mix(list: &[i64], ring: &mut [(usize, usize)]) {
             continue;
         }
 
-        let goal = find(&ring, idx, times);
+        let goal = find(ring, idx, times);
 
         // connect current.prev to current.next
         let prev = ring[idx].0;
